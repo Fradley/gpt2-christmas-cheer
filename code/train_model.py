@@ -19,7 +19,7 @@ cache_dir = os.path.abspath('../models/gpt2_cache')
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 config = GPT2Config.from_pretrained('gpt2', cache_dir=cache_dir)
 tokenizer = GPT2Tokenizer.from_pretrained('gpt2', do_lower_case=False, cache_dir=cache_dir)
-trainset = TextDataset('trainingData.txt', tokenizer)
+trainset = util.TextDataset('trainingData.txt', tokenizer)
 gpt2 = GPT2LMHeadModel.from_pretrained('gpt2', config=config, cache_dir=cache_dir)
 
 gpt2.to(device)
@@ -50,4 +50,4 @@ with open(f'{txt_path}/text_{time_str}.txt', 'w') as f:
 dir_name = f'GPT-2_{time_str}'
 path = os.path.abspath('../models/')
 os.mkdir(path + '/' + dir_name)
-gpt2.save(path + '/' + dir_name)
+gpt2.save_pretrained(path + '/' + dir_name)

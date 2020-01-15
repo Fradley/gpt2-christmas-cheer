@@ -96,7 +96,7 @@ def train(train_dataset, model, tokenizer, device, sample_context='<|endoftext|>
                     tb_writer.add_scalar('loss', (tr_loss - logging_loss)/50, global_step)
                     logging_loss = tr_loss
         
-        demo = sample_sequence(model, c_tokens, length=200, temperature=1, top_k=0, device)
+        demo = sample_sequence(model, c_tokens, length=200, temperature=1, top_k=0, device=device)
         demo = demo[:, len(c_tokens):].tolist()
         for d in demo:
             demo_text = tokenizer.decode(d, clean_up_tokenization_spaces=True)
