@@ -29,11 +29,11 @@ logging.basicConfig(format = '%(asctime)s - %(levelname)s - %(name)s -   %(messa
                         datefmt = '%m/%d/%Y %H:%M:%S',
                         level = logging.WARN)
                         
-util.train(trainset, gpt2, tokenizer, device, epochs=6)
+util.train(trainset, gpt2, tokenizer, device, epochs=6, logger=logger)
 
 prompt = '<|endoftext|>'
 context_tokens = tokenizer.encode(prompt, add_special_tokens=False)
-out = util.sample_sequence(gpt2, context_tokens, length=500, temperature=.7, top_k=0)[:, 1:]
+out = util.sample_sequence(gpt2, context_tokens, length=500, temperature=1, top_k=0, device=device)[:, 1:]
 
 out = out[:, len(context_tokens):].tolist()
 

@@ -33,7 +33,7 @@ class TextDataset(Dataset):
         return torch.tensor(self.examples[item])
         
         
-def train(train_dataset, model, tokenizer, device, sample_context='<|endoftext|>', batch_size=4, epochs=8, learning_rate=.0001):
+def train(train_dataset, model, tokenizer, device, sample_context='<|endoftext|>', batch_size=4, epochs=8, learning_rate=.0001, logger=None):
     c_tokens = tokenizer.encode(sample_context, add_special_tokens=False)
     tb_writer = SummaryWriter()
     train_sampler = RandomSampler(train_dataset)
@@ -96,7 +96,7 @@ def train(train_dataset, model, tokenizer, device, sample_context='<|endoftext|>
                     tb_writer.add_scalar('loss', (tr_loss - logging_loss)/50, global_step)
                     logging_loss = tr_loss
         
-        demo = sample_sequence(model, c_tokens, length=100, temperature=.7, top_k=0)
+        demo = sample_sequence(model, c_tokens, length=200, temperature=1, top_k=0, device)
         demo = demo[:, len(c_tokens):].tolist()
         for d in demo:
             demo_text = tokenizer.decode(d, clean_up_tokenization_spaces=True)
