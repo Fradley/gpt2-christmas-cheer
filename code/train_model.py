@@ -15,13 +15,12 @@ try:
     from torch.utils.tensorboard import SummaryWriter
 except:
     from tensorboardX import SummaryWriter
-    
-    
+cache_dir = os.path.abspath('../models/gpt2_cache')
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-config = GPT2Config.from_pretrained('gpt2', cache_dir='gpt2_practice/')
-tokenizer = GPT2Tokenizer.from_pretrained('gpt2', do_lower_case=False, cache_dir='gpt2_practice/')
+config = GPT2Config.from_pretrained('gpt2', cache_dir=cache_dir)
+tokenizer = GPT2Tokenizer.from_pretrained('gpt2', do_lower_case=False, cache_dir=cache_dir)
 trainset = TextDataset('trainingData.txt', tokenizer)
-gpt2 = GPT2LMHeadModel.from_pretrained('gpt2', config=config, cache_dir='gpt2_practice/')
+gpt2 = GPT2LMHeadModel.from_pretrained('gpt2', config=config, cache_dir=cache_dir)
 
 gpt2.to(device)
 
@@ -45,10 +44,10 @@ for o in out:
     print(prompt + text.replace('<|endoftext|>', '\n'))
 time_str = time.strftime("%Y%m%d-%H%M%S")
 txt_path = os.path.abspath('../outputs/')
-with open(f'{txt_path}text_{time_str}.txt', 'w') as f:
+with open(f'{txt_path}/text_{time_str}.txt', 'w') as f:
     f.write(prompt.replace('<|endoftext|>', '\n') + text.replace('<|endoftext|>', '\n'))
 
 dir_name = f'GPT-2_{time_str}'
 path = os.path.abspath('../models/')
-os.mkdir(path + dir_name)
-gpt2.save(path + dir_name)
+os.mkdir(path + '/' + dir_name)
+gpt2.save(path + '/' + dir_name)
