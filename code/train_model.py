@@ -21,7 +21,7 @@ def main():
 	parser = argparse.ArgumentParser()
 	parser.add_argument('--batch_size', default=4, type=int, help='Chooses the training batch size.')
 	parser.add_argument('--num_epochs', default=4, type=int, help='Number of training epochs')
-	parser.add_argument('--learning_rate', default=1-4, type=float, help='Determines the learning rate of training.')
+	parser.add_argument('--learning_rate', default=1e-4, type=float, help='Determines the learning rate of training.')
 	parser.add_argument('--model_dir', default='gpt2', type=str, help='Uses a previous model')
 	parser.add_argument('--save_model', default=False, type=bool, help='Whether to save model after training.')
 	parser.add_argument('--generate_sample', default=False, type=bool, help='Determine whether to generate samples after training.')
@@ -44,8 +44,8 @@ def main():
 
 	logger = logging.getLogger(__name__)
 	logging.basicConfig(format = '%(asctime)s - %(levelname)s - %(name)s -   %(message)s',
-	                    datefmt = '%m/%d/%Y %H:%M:%S',
-	                    level = logging.WARN)
+			    datefmt = '%m/%d/%Y %H:%M:%S',
+			    level = logging.WARN)
 
 	util.train(trainset, gpt2, tokenizer, device,batch_size=args.batch_size, epochs=args.num_epochs, learning_rate=args.learning_rate, logger=logger)
 	if args.generate_sample:
@@ -59,14 +59,15 @@ def main():
 
 		prefix = prompt
 		for o in out:
-	    	text = tokenizer.decode(o, clean_up_tokenization_spaces=True)
-	    	text = text[:]
-	    	print(prompt + text.replace('<|endoftext|>', '\n'))
+			text = tokenizer.decode(o, clean_up_tokenization_spaces=True)
+			text = text[:]
+
+		print(prompt + text.replace('<|endoftext|>', '\n'))
 		time_str = time.strftime("%Y%m%d-%H%M%S")
 		txt_path = os.path.abspath('../outputs/')
 		with open(f'{txt_path}/text_{time_str}.txt', 'w') as f:
 			f.write(param_list)
-	    		f.write(prompt.replace('<|endoftext|>', '\n') + text.replace('<|endoftext|>', '\n'))
+			f.write(prompt.replace('<|endoftext|>', '\n') + text.replace('<|endoftext|>', '\n'))
 	if args.save_model:
 		dir_name = f'GPT-2_{time_str}'
 		path = os.path.abspath('../models/')
