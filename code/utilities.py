@@ -20,19 +20,19 @@ class TextDataset(Dataset):
         txt = str()
         with open(path, encoding='utf-8') as f:
             txt = f.read()
-        
+
         tokenized_text = tokenizer.convert_tokens_to_ids(tokenizer.tokenize(txt))
-        
+
         for i in range(0, len(tokenized_text) - 512 + 1, 512):
             self.examples.append(tokenizer.build_inputs_with_special_tokens(tokenized_text[i:i + 512]))
-    
+
     def __len__(self):
         return len(self.examples)
-    
+
     def __getitem__(self, item):
         return torch.tensor(self.examples[item])
-        
-        
+
+
 def train(train_dataset, model, tokenizer, device, sample_context='<|endoftext|>', batch_size=4, epochs=8, learning_rate=.0001, logger=None):
     c_tokens = tokenizer.encode(sample_context, add_special_tokens=False)
     tb_writer = SummaryWriter()
@@ -47,7 +47,7 @@ def train(train_dataset, model, tokenizer, device, sample_context='<|endoftext|>
                                ]
     optimizer = AdamW(optimizer_grouped_params, lr=learning_rate, eps=1e-8)
     scheduler = get_linear_schedule_with_warmup(optimizer, num_warmup_steps=0, num_training_steps=t_total)
-    
+
     logger.info("***** Running training *****")
     logger.info("  Num examples = %d", len(train_dataset))
     logger.info("  Num Epochs = %d", epochs)
@@ -59,43 +59,43 @@ def train(train_dataset, model, tokenizer, device, sample_context='<|endoftext|>
     global_step = 0
     epochs_trained = 0
     steps_trained_in_current_epoch = 0
-    
+
     tr_loss, logging_loss = 0.0, 0.0
-    
+
     model.resize_token_embeddings(len(tokenizer))
     model.zero_grad()
-    
+
     train_iterator = trange(epochs_trained, epochs, desc='Epoch')
-    
+
     for _ in train_iterator:
         epoch_iterator = tqdm(train_dataloader, desc='Iteration')
         for step, batch in enumerate(epoch_iterator):
-            
+
             inputs, labels = (batch, batch)
             inputs = inputs.to(device)
             labels = labels.to(device)
             model.train()
-            
+
             outputs = model(inputs, labels=labels)
-            
+
             loss = outputs[0]
-            
+
             loss.backward()
-            
+
             tr_loss += loss.item()
-            
+
             torch.nn.utils.clip_grad_norm_(model.parameters(), 1)
-            
+
             optimizer.step()
             scheduler.step()
             model.zero_grad()
             global_step += 1
-            
+
             if global_step % 50 == 0:
                     tb_writer.add_scalar('lr', scheduler.get_lr()[0], global_step)
                     tb_writer.add_scalar('loss', (tr_loss - logging_loss)/50, global_step)
                     logging_loss = tr_loss
-        
+
         demo = sample_sequence(model, c_tokens, length=200, temperature=1, top_k=0, device=device)
         demo = demo[:, len(c_tokens):].tolist()
         for d in demo:
@@ -104,7 +104,7 @@ def train(train_dataset, model, tokenizer, device, sample_context='<|endoftext|>
         print(sample_context.replace('<|endoftext|>', '\n') + demo_text.replace('<|endoftext|>', '\n'))
     tb_writer.close()
     return global_step, tr_loss / global_step
-    
+
 def top_k_top_p_filtering(logits, top_k=0, top_p=0.0, filter_value=-float('Inf')):
     """ Filter a distribution of logits using top-k and/or nucleus (top-p) filtering
         Args:
