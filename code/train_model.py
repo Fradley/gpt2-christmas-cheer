@@ -13,9 +13,9 @@ import argparse
 import utilities as util
 from tqdm.autonotebook import trange, tqdm
 try:
-    from torch.utils.tensorboard import SummaryWriter
+	from torch.utils.tensorboard import SummaryWriter
 except:
-    from tensorboardX import SummaryWriter
+	from tensorboardX import SummaryWriter
 
 def main():
 	parser = argparse.ArgumentParser()
